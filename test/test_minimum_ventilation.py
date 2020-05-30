@@ -1,7 +1,7 @@
 import sys
 import unittest
 sys.path.append("../")
-from minimum_ventilation import MinimunVentilation
+from models.minimum_ventilation import MinimunVentilation
 
 class TestMinimunVentilation(unittest.TestCase):
 

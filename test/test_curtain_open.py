@@ -1,7 +1,7 @@
 import sys
 import unittest
 sys.path.append("../")
-from curtain_open import CurtainOpen
+from models.curtain_open import CurtainOpen
 
 class TestCurtainOpen(unittest.TestCase):
 

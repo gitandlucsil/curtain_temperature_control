@@ -3,6 +3,10 @@ import os
 import gevent
 import redis
 from gevent import monkey
+from models.curtain_open import CurtainOpen
+from models.curtain_close import CurtainClose
+from models.minimum_ventilation import MinimunVentilation
+from models.curtain import Curtain
 
 monkey.patch_socket()
 greenlets = []
@@ -18,10 +22,10 @@ class TemperatureCurtainControl(object):
 
     def __init__(self):
         print("Just started!")
-        self._cal = 19.5
-        self._cad = 19.0
-        self._cfd = 19.0
-        self._cfl = 18.5
+        self._ca = CurtainOpen()
+        self._cf = CurtainClose()
+        self._vm = MinimunVentilation()
+        self._curtain = Curtain()
         self._redis = redis.StrictRedis(**TemperatureCurtainControl.REDIS_CONFIG)
 
         if not self._is_registered('system.services','temperaturecurtaincontrol'):
