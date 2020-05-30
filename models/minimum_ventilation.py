@@ -13,6 +13,7 @@ class MinimunVentilation(object):
     @abrefecha.setter
     def abrefecha(self, value):
         self._abrefecha = int(value)
+        print("MinimunVentilation - Changed abrefecha to ",self._abrefecha)
 
     @property
     def aberto(self):
@@ -21,6 +22,7 @@ class MinimunVentilation(object):
     @aberto.setter
     def aberto(self, value):
         self._aberto = int(value)
+        print("MinimunVentilation - Changed aberto to ",self._aberto)
 
     @property
     def fechado(self):
@@ -29,6 +31,7 @@ class MinimunVentilation(object):
     @fechado.setter
     def fechado(self, value):
         self._fechado = int(value)
+        print("MinimunVentilation - Changed fechado to ",self._fechado)
 
     @property
     def limite(self):
@@ -37,3 +40,4 @@ class MinimunVentilation(object):
     @limite.setter
     def limite(self, value):
         self._limite = int(value)
+        print("MinimunVentilation - Changed limite to ",self._limite)

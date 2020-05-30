@@ -13,6 +13,7 @@ class CurtainClose(object):
     @cfl.setter
     def cfl(self, value):
         self._cfl = float(value)
+        print("CurtainClose - Changed cfl to ",self._cfl)
 
     @property
     def cfd(self):
@@ -21,6 +22,7 @@ class CurtainClose(object):
     @cfd.setter
     def cfd(self, value):
         self._cfd = float(value)
+        print("CurtainClose - Changed cfd to ",self._cfd)
 
     @property
     def ton(self):
@@ -29,6 +31,7 @@ class CurtainClose(object):
     @ton.setter
     def ton(self, value):
         self._ton = int(value)
+        print("CurtainClose - Changed ton to ",self._ton)
 
     @property
     def toff(self):
@@ -37,3 +40,4 @@ class CurtainClose(object):
     @toff.setter
     def toff(self, value):
         self._toff = int(value)
+        print("CurtainClose - Changed toff to ",self._ton)

@@ -26,6 +26,7 @@ class TemperatureCurtainControl(object):
         self._cf = CurtainClose()
         self._vm = MinimunVentilation()
         self._curtain = Curtain()
+        self._temperature = 19
         self._redis = redis.StrictRedis(**TemperatureCurtainControl.REDIS_CONFIG)
 
         if not self._is_registered('system.services','temperaturecurtaincontrol'):
@@ -52,20 +53,51 @@ class TemperatureCurtainControl(object):
     def subscriber(self):
         print("subscriber")
         pubsub = self._redis.pubsub(ignore_subscribe_messages=True)
+        pubsub.subscribe("temperature")
         pubsub.subscribe("cal")
         pubsub.subscribe("cad")
-        pubsub.subscribe("cfd")
+        pubsub.subscribe("ca_ton")
+        pubsub.subscribe("ca_toff")
         pubsub.subscribe("cfl")
+        pubsub.subscribe("cfd")
+        pubsub.subscribe("cf_ton")
+        pubsub.subscribe("cf_toff")
+        pubsub.subscribe("abrefecha")
+        pubsub.subscribe("aberto")
+        pubsub.subscribe("fechado")
+        pubsub.subscribe("limite")
+        pubsub.subscribe("abertura")
         
         for notification in pubsub.listen():
-            if notification["channel"] == "cal":
-                pass
+            if notification["channel"] == "temperature":
+                self._temperature = notification["data"]
+            elif notification["channel"] == "cal":
+                self._ca.cal = notification["data"]
             elif notification["channel"] == "cad":
-                pass
+                self._ca.cad = notification["data"]
+            elif notification["channel"] == "ca_ton":
+                self._ca.ton = notification["data"]
+            elif notification["channel"] == "ca_toff":
+                self._ca.toff = notification["data"]
             elif notification["channel"] == "cfl":
-                pass
+                self._cf.cfl = notification["data"]
             elif notification["channel"] == "cfd":
-                pass
+                self._cf.cfd = notification["data"]
+            elif notification["channel"] == "cf_ton":
+                self._cf.ton = notification["data"]
+            elif notification["channel"] == "cf_toff":
+                self._cf.toff = notification["data"]
+            elif notification["channel"] == "abrefecha":
+                self._vm.abrefecha = notification["data"]
+            elif notification["channel"] == "aberto":
+                self._vm.aberto = notification["data"]
+            elif notification["channel"] == "fechado":
+                self._vm.fechado = notification["data"]
+            elif notification["channel"] == "limite":
+                self._vm.limite = notification["data"]
+            elif notification["channel"] == "abertura":
+                self._curtain.abertura = notification["data"]
+
 
 
 def main():

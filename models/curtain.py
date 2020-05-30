@@ -10,4 +10,5 @@ class Curtain(object):
     @abertura.setter
     def abertura(self, value):
         self._abertura = int(value)
+        print("Curtain - Changed abertura to ",self._abertura)
 

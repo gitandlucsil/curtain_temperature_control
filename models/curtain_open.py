@@ -13,6 +13,7 @@ class CurtainOpen(object):
     @cal.setter
     def cal(self, value):
         self._cal = float(value)
+        print("CurtainOpen - Changed cal to ",self._cal)
 
     @property
     def cad(self):
@@ -21,6 +22,7 @@ class CurtainOpen(object):
     @cad.setter
     def cad(self, value):
         self._cad = float(value)
+        print("CurtainOpen - Changed cad to ",self._cad)
 
     @property
     def ton(self):
@@ -29,6 +31,7 @@ class CurtainOpen(object):
     @ton.setter
     def ton(self, value):
         self._ton = int(value)
+        print("CurtainOpen - Changed ton to ",self._ton)
 
     @property
     def toff(self):
@@ -37,3 +40,4 @@ class CurtainOpen(object):
     @toff.setter
     def toff(self, value):
         self._toff = int(value)
+        print("CurtainOpen - Changed toff to ",self._toff)
