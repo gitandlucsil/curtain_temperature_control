@@ -1,7 +1,7 @@
 class Curtain(object):
 
     def __init__(self):
-        self._abertura = 30
+        self._abertura = 0
 
     @property
     def abertura(self):

@@ -43,7 +43,19 @@ class TemperatureCurtainControl(object):
 
     def run(self):
         while True:
-            print("running!")
+            if self._temperature >= self._ca.cal:
+                print("abre cortina")
+            else:
+                if self._temperature <= self._ca.cad:
+                    print("parou de abrir a cortina!")
+                    if self._curtain.abertura < self._vm.limite:
+                        print("ventilação mínima")
+                    else:
+                        if self._temperature <= self._cf.cfl:
+                            print("fechar_cortina")
+                        elif self._temperature >= self._cf.cfd:
+                            print("parou de fechar cortina")
+                
             gevent.sleep(1)
 
     def publisher(self, channel, value):
@@ -70,7 +82,7 @@ class TemperatureCurtainControl(object):
         
         for notification in pubsub.listen():
             if notification["channel"] == "temperature":
-                self._temperature = notification["data"]
+                self._temperature = float(notification["data"])
             elif notification["channel"] == "cal":
                 self._ca.cal = notification["data"]
             elif notification["channel"] == "cad":
