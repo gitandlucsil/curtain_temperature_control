@@ -20,7 +20,7 @@ To change the parameters, can be used redis-cli, for example, the command bellow
 redis-cli
 publish temperature 19.5
 ```
-To monitor a specific value changes, cab ne used redis-cli too, but using subscribe method:
+To monitor a specific value changes, can be used redis-cli too, but using subscribe method:
 ```
 redis-cli
 subscribe abertura
