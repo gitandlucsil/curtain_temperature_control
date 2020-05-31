@@ -98,6 +98,7 @@ class TemperatureCurtainControl(object):
                 self._ca.state = Types.CA_INITIAL_STATE
                 self._cf.state = Types.CF_INITIAL_STATE
                 self._vm.state = Types.VM_INITIAL_STATE
+            self.publisher("abertura",self._curtain.abertura)
             gevent.sleep(1)
 
     def publisher(self, channel, value):
