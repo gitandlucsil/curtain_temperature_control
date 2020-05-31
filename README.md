@@ -2,3 +2,5 @@
 ## This project represents a basic model to a temperature control in some animal storage enviroment, using the control of opening or closing curtains according the internal temperature and configurable parameters.
 
 ![Badge](https://img.shields.io/static/v1?label=language&message=python&color=green&style=for-the-badge&logo=PYTHON)
+
+##To run this application
