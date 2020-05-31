@@ -1,3 +1,6 @@
+from .controltypes import Types
+from .curtain import Curtain
+
 class CurtainOpen(object):
 
     def __init__(self):
@@ -5,6 +8,9 @@ class CurtainOpen(object):
         self._cad = 19.0
         self._ton = 40
         self._toff = 180
+        self._state = Types.CA_INITIAL_STATE
+        self._time = 0
+        self._curtain = Curtain()
 
     @property
     def cal(self):
@@ -41,3 +47,34 @@ class CurtainOpen(object):
     def toff(self, value):
         self._toff = int(value)
         print("CurtainOpen - Changed toff to ",self._toff)
+
+    @property 
+    def state(self):
+        return self._state
+
+    @state.setter
+    def state(self, value):
+        self._state = value
+        print("CurtainOpen - Changed state to",self._state)
+
+    def fsm(self):
+        if self._state == Types.CA_INITIAL_STATE:
+            self._state = Types.CA_OPENNING
+            print("CurtainOpen - Start to open!")
+            self._time = 0
+            self._curtain.status = Types.OPENING
+        elif self._state == Types.CA_OPENNING:
+            print("CurtainOpen - Openning!")
+            self._time += 1
+            print("CurtainOpen - Passed %s seconds" % self._time)
+            self._curtain.abertura += 1
+            if self._time >= self._ton:
+                self._state = Types.CA_STOPPED
+                self._time = 0
+                self._curtain.status = Types.STOPPED
+        elif self._state == Types.CA_STOPPED:
+            print("CurtainOpen - Waiting!")
+            self._time += 1
+            print("CurtainOpen - Passed %s seconds" % self._time)
+            if self._time >= self._toff:
+                self._state = Types.CA_INITIAL_STATE

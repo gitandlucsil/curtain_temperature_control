@@ -3,6 +3,7 @@ import os
 import gevent
 import redis
 from gevent import monkey
+from models.controltypes import Types
 from models.curtain_open import CurtainOpen
 from models.curtain_close import CurtainClose
 from models.minimum_ventilation import MinimunVentilation
@@ -27,6 +28,7 @@ class TemperatureCurtainControl(object):
         self._vm = MinimunVentilation()
         self._curtain = Curtain()
         self._temperature = 19
+        self._started_cf_by_vm = False
         self._redis = redis.StrictRedis(**TemperatureCurtainControl.REDIS_CONFIG)
 
         if not self._is_registered('system.services','temperaturecurtaincontrol'):
@@ -43,19 +45,59 @@ class TemperatureCurtainControl(object):
 
     def run(self):
         while True:
-            if self._temperature >= self._ca.cal:
-                print("abre cortina")
-            else:
-                if self._temperature <= self._ca.cad:
-                    print("parou de abrir a cortina!")
-                    if self._curtain.abertura < self._vm.limite:
-                        print("ventilação mínima")
-                    else:
-                        if self._temperature <= self._cf.cfl:
-                            print("fechar_cortina")
-                        elif self._temperature >= self._cf.cfd:
-                            print("parou de fechar cortina")
-                
+            if self._temperature >= self._ca.cal: #Se a Temperatura ficar acima do CAL
+                if self._curtain.control != Types.CA: #Passa o controle para abertura de cortina
+                    self._curtain.control = Types.CA
+            else: #Caso a temperatura ficar abaixo de CAL
+                if self._temperature <= self._ca.cad: #Se a Temperatura cair o CAD
+                    if self._curtain.control == Types.CA: #Se o contrile estiver para abertura da cortina
+                        self._ca.state = Types.CA_INITIAL_STATE #Para de abrir a cortina
+                        self._curtain.control = Types.NONE
+                    if self._curtain.abertura < self._vm.limite: #Se a abertura for menor que o Limite da VM
+                        if self._curtain.control == Types.CF: #Estiver controlando por CF
+                            if (self._cf.state == Types.CF_INITIAL_STATE) or (self._cf.state == Types.CF_STOPPED):
+                                self._curtain.control = Types.VM #Se estiver com a CF parada, retorna para VM
+                        else: #Caso contrario, retornar o controle para VM
+                            if self._curtain.control != Types.VM:
+                                self._curtain.control = Types.VM
+                    else: #Se a abertura for maior ou igual que o Limite da VM
+                        if self._curtain.control != Types.VM: #Se não estiver controlando por VM
+                            if self._temperature <= self._cf.cfl: #Se a Temperatura ficar abaixo de CFL
+                                if self._curtain.control != Types.CF:
+                                    self._curtain.control = Types.CF
+                            elif self._temperature >= self._cf.cfd: #Se a Temperatura subir o CFD
+                                if self._curtain.control == Types.CF:
+                                    self._cf.state = Types.CF_INITIAL_STATE
+                                    self._curtain.control = Types.NONE
+                        if self._vm.state == Types.VM_WAIT_CLOSING: #Se estiver no estado de espera fechado da VM, sai do controle
+                            self._curtain.control = Types.NONE
+
+            if self._curtain.control == Types.CA:
+                self._vm.state = Types.VM_INITIAL_STATE
+                self._cf.state = Types.CF_INITIAL_STATE
+                self._ca.fsm()
+            elif self._curtain.control == Types.CF:
+                self._vm.state = Types.VM_INITIAL_STATE
+                self._ca.state = Types.CA_INITIAL_STATE
+                self._cf.fsm()
+            elif self._curtain.control == Types.VM:
+                self._ca.state = Types.CA_INITIAL_STATE
+                self._vm.fsm()
+                if self._vm.state == Types.VM_WAIT_CLOSING: #No tempo de espera fechado da VM
+                    if (self._temperature <= self._cf.cfl) and (self._started_cf_by_vm is False): #Se a Temperatura ficar abaixo de CFL
+                        self._cf.fsm()
+                        self._started_cf_by_vm = True
+                    if (self._temperature < self._cf.cfd) and (self._started_cf_by_vm is True):
+                        self._cf.fsm()
+                    if self._temperature >= self._cf.cfd:
+                        self._started_cf_by_vm = False
+                        self._cf.state = Types.CF_INITIAL_STATE
+                else:
+                    self._cf.state = Types.CF_INITIAL_STATE
+            elif self._curtain.control == Types.NONE:
+                self._ca.state = Types.CA_INITIAL_STATE
+                self._cf.state = Types.CF_INITIAL_STATE
+                self._vm.state = Types.VM_INITIAL_STATE
             gevent.sleep(1)
 
     def publisher(self, channel, value):
@@ -109,8 +151,6 @@ class TemperatureCurtainControl(object):
                 self._vm.limite = notification["data"]
             elif notification["channel"] == "abertura":
                 self._curtain.abertura = notification["data"]
-
-
 
 def main():
     temperatureCurtainControl = TemperatureCurtainControl()
