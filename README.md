@@ -26,7 +26,7 @@ redis-cli
 subscribe abertura
 ```
 
-Finalyy, the parameters that can be changed by Redis publication are:
+Finaly, the parameters that can be changed by Redis publication are:
 - temperature: The average internal temperature;
 - cal: The temperature to the control CA start;
 - cad: The temperature to the control CA stop;
