@@ -71,7 +71,15 @@ class TemperatureCurtainControl(object):
                                     self._curtain.control = Types.NONE
                         if self._vm.state == Types.VM_WAIT_CLOSING: #Se estiver no estado de espera fechado da VM, sai do controle
                             self._curtain.control = Types.NONE
-
+                else:
+                    if self._curtain.control == Types.CF: #Estiver controlando por CF
+                        if self._temperature >= self._cf.cfd: #Se a Temperatura subir o CFD
+                            self._cf.state = Types.CF_INITIAL_STATE
+                            self._curtain.control = Types.NONE
+                    if self._temperature >= self._ca.cad:
+                        if((self._curtain.control != Types.CF) and (self._curtain.control != Types.CA)):
+                            if self._curtain.abertura < self._vm.limite:
+                                self._curtain.control = Types.VM
             if self._curtain.control == Types.CA:
                 self._vm.state = Types.VM_INITIAL_STATE
                 self._cf.state = Types.CF_INITIAL_STATE
